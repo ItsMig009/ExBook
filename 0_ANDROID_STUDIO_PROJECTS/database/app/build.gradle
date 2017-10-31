@@ -41,6 +41,8 @@ dependencies {
 
 
     testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
 }
 // this plug in will read the google services .json file and inject some its values to our build
 apply plugin: 'com.google.gms.google-services'
