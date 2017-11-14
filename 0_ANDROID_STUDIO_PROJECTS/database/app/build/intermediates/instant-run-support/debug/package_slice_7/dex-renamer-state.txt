@@ -1,4 +1,4 @@
-#Fri Oct 27 16:52:50 EDT 2017
-base.0=/Users/migueljardinesjr/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/transforms/dexMerger/debug/7
+#Mon Nov 13 17:16:30 EST 2017
+base.0=/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/transforms/dexMerger/debug/8
 renamed.0=classes.dex
-file.0=/Users/migueljardinesjr/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/transforms/dexMerger/debug/7/classes.dex
+file.0=/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/transforms/dexMerger/debug/8/classes.dex

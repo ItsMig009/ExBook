@@ -1,13 +1,19 @@
 package com.google.firebase.quickstart.database;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -15,6 +21,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.quickstart.database.models.Post;
 import com.google.firebase.quickstart.database.models.User;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +37,17 @@ public class NewPostActivity extends BaseActivity {
     private DatabaseReference mDatabase;
     // [END declare_database_ref]
 
+    // [START declare_database_ref]
+    protected StorageReference mStorage;// Image storage reference.
+
+
     private EditText mTitleField;
     private EditText mBodyField;
+    protected Button mSelectImage; // Button for Image
     private FloatingActionButton mSubmitButton;
+
+    // added recently
+    private static final int GALLERY_INTENT = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +58,30 @@ public class NewPostActivity extends BaseActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END initialize_database_ref]
 
+        // [START initialize_database_ref]
+        mStorage = FirebaseStorage.getInstance().getReference();
+        // [END initialize_database_ref]
+
+
         mTitleField = findViewById(R.id.field_title);
         mBodyField = findViewById(R.id.field_body);
+        // Submit button
         mSubmitButton = findViewById(R.id.fab_submit_post);
+
+        // added recently
+        mSelectImage = (Button) findViewById(R.id.selectImage);
+
+        // added recently
+        mSelectImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+
+                intent.setType("image/*");
+
+                startActivityForResult(intent, GALLERY_INTENT);
+            }
+        });
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +147,32 @@ public class NewPostActivity extends BaseActivity {
                     }
                 });
         // [END single_value_read]
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
+
+            Uri uri = data.getData();
+
+            StorageReference filePath = mStorage.child("uploaded_by_user").child(uri.getLastPathSegment());
+
+            filePath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    Toast.makeText(NewPostActivity.this, "Upload Done.",Toast.LENGTH_LONG).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG,"File could not be uploaded",new Exception());
+
+                }
+            });
+        }
     }
 
     private void setEditingEnabled(boolean enabled) {

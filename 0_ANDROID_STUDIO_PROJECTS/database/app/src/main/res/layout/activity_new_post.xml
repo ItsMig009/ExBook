@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,9 +35,23 @@
         android:id="@+id/fab_submit_post"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/field_body"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_navigation_check_24"/>
+        android:layout_alignRight="@+id/field_body"
+        android:layout_marginBottom="15dp"
+        android:src="@drawable/ic_navigation_check_24"
+        app:backgroundTint="@color/colorPrimaryDark" />
+
+    <Button
+        android:id="@+id/selectImage"
+        style="@android:style/Widget.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/field_body"
+        android:layout_alignLeft="@+id/field_body"
+        android:layout_alignRight="@+id/field_body"
+        android:layout_alignStart="@+id/field_body"
+        android:layout_below="@+id/field_body"
+        android:text="@string/add_book_photo_from_library" />
 
 </RelativeLayout>
