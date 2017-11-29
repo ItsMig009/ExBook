@@ -1,31 +1,29 @@
 package com.example.davidg.exbook;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.davidg.exbook.data.SunshinePreferences;
 import com.example.davidg.exbook.utilities.NetworkUtils;
 import com.example.davidg.exbook.utilities.OpenWeatherJsonUtils;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.net.URL;
 
@@ -36,6 +34,12 @@ public class MainActivity extends AppCompatActivity
     private ListingAdapter mListingAdapter;
     private ProgressBar mLoadingIndicator;
     private StaggeredGridLayoutManager layoutManager;
+
+    private FirebaseAuth mAuth;
+    private Menu drawableMenu = null;
+    private NavigationView navigationView = null;
+    private MenuItem loginDrawableItemMenu = null;
+    private MenuItem logoutDrawableItemMenu = null;
 
 
     @Override
@@ -55,8 +59,11 @@ public class MainActivity extends AppCompatActivity
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        drawableMenu = navigationView.getMenu();
+        loginDrawableItemMenu = drawableMenu.findItem(R.id.nav_sign_in_sign_up);
+        logoutDrawableItemMenu = drawableMenu.findItem(R.id.nav_sign_out);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
@@ -104,8 +111,8 @@ public class MainActivity extends AppCompatActivity
         /* Once all of our views are setup, we can load the weather data. */
         loadWeatherData();
 
-
-
+        // Check whether the user is already logged in or not
+        checkLogInStatus();
     }
 
     @Override
@@ -156,9 +163,31 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        // check if user is logged on
+        checkLogInStatus();
+    }
+
+    public void checkLogInStatus(){
+        mAuth = FirebaseAuth.getInstance();
+        if(mAuth.getCurrentUser() != null){ //if user is logged on already
+            showLogOut();
+        }
+        else{
+            showLogIn();
+        }
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        Context context = MainActivity.this;
+        Class destinationActivity = null;
+        Intent startSingInIntent = null;
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         String navigationText = "";
@@ -170,17 +199,45 @@ public class MainActivity extends AppCompatActivity
             navigationText = "Slideshow navigation option clicked.";
         } else if (id == R.id.nav_manage) {
             navigationText = "Manage navigation option clicked.";
-        } else if (id == R.id.nav_share) {
-            navigationText = "Share navigation option clicked.";
-        } else if (id == R.id.nav_send) {
-            navigationText = "Send navigation option clicked.";
+        } else if (id == R.id.nav_sign_in_sign_up) {
+
+            startSingInIntent = new Intent(getApplicationContext(),SignInActivity.class);
+            //navigationText = "Sign in / Sign out navigation option clicked.";
+
+        } else if (id == R.id.nav_sign_out) {
+
+            navigationText = "Log out completed.";
+            Toast.makeText(MainActivity.this,navigationText,Toast.LENGTH_LONG).show();
+
+            //Log the user out
+            FirebaseAuth.getInstance().signOut();
+            mAuth = null;
+
+            showLogIn();
+
         }
 
-        Toast.makeText(MainActivity.this,navigationText,Toast.LENGTH_LONG).show();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+        if(startSingInIntent != null){
+            startActivity(startSingInIntent);
+        }
+
         return true;
+    }
+
+    //make log in option visible & log out option invisible
+    private void showLogIn(){
+        loginDrawableItemMenu.setVisible(true);
+        logoutDrawableItemMenu.setVisible(false);
+    }
+
+    //make log in option invisible & log out option visible
+    private void showLogOut(){
+        loginDrawableItemMenu.setVisible(false);
+        logoutDrawableItemMenu.setVisible(true);
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
