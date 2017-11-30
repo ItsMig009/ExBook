@@ -137,4 +137,16 @@
     <string name="heading_my_top_posts">My Top Posts</string>
     <string name="add_book_photo_from_library">Add Book Photo From Library</string>
 
+    <string name="barcode_scanner">"    Scan Book Barcode    "</string>
+    <string name="isbn">ISBN</string>
+    <string name="isbn_hint">Enter ISB # ...</string>
+    <string name="title">Title</string>
+    <string name="title_hint">Book title ...</string>
+    <string name="version">Version</string>
+    <string name="version_hint">Version # ...</string>
+    <string name="authors">Authors</string>
+    <string name="authors_hint">Enter authors (comma separated) ...</string>
+    <string name="next">Next</string>
+
+
 </resources>

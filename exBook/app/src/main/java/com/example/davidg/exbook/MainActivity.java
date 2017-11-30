@@ -1,10 +1,13 @@
 package com.example.davidg.exbook;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.davidg.exbook.data.SunshinePreferences;
+import com.example.davidg.exbook.helpers.BottomNavigationViewHelper;
 import com.example.davidg.exbook.utilities.NetworkUtils;
 import com.example.davidg.exbook.utilities.OpenWeatherJsonUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView = null;
     private MenuItem loginDrawableItemMenu = null;
     private MenuItem logoutDrawableItemMenu = null;
+    private BottomNavigationView bottomNavigationView;
 
 
     @Override
@@ -64,6 +69,10 @@ public class MainActivity extends AppCompatActivity
         drawableMenu = navigationView.getMenu();
         loginDrawableItemMenu = drawableMenu.findItem(R.id.nav_sign_in_sign_up);
         logoutDrawableItemMenu = drawableMenu.findItem(R.id.nav_sign_out);
+
+        // Disable shifting mode and displays all titles of navigation options
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
@@ -113,6 +122,17 @@ public class MainActivity extends AppCompatActivity
 
         // Check whether the user is already logged in or not
         checkLogInStatus();
+    }
+
+    @SuppressLint("RestrictedApi")
+    private void fixBottomNavigationViewShifting(){
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigationView.getChildAt(0);
+
+        for (int i = 0; i < menuView.getChildCount(); i++) {
+            BottomNavigationItemView itemView = (BottomNavigationItemView) menuView.getChildAt(i);
+            itemView.setShiftingMode(false);
+            itemView.setChecked(false);
+        }
     }
 
     @Override
@@ -245,13 +265,16 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            String navigationText;
+            String navigationText = null;
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     navigationText = "Home navigation option clicked.";
                     break;
                 case R.id.navigation_post:
-                    navigationText = "Post navigation option clicked.";
+                    //navigationText = "Post navigation option clicked.";
+
+                    //go to post activity 1
+                    startActivity(new Intent(MainActivity.this,PostActivity1.class));
                     break;
                 case R.id.navigation_chat:
                     navigationText = "Chat navigation option clicked.";
@@ -265,7 +288,10 @@ public class MainActivity extends AppCompatActivity
                 default:
                     return false;
             }
-            Toast.makeText(MainActivity.this,navigationText,Toast.LENGTH_LONG).show();
+            if(navigationText != null){
+                Toast.makeText(MainActivity.this,navigationText,Toast.LENGTH_LONG).show();
+            }
+
             return true;
         }
     };
@@ -348,4 +374,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+
+
 }
+
+

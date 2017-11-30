@@ -3,7 +3,7 @@
     package="com.example.davidg.exbook">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,12 +23,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".SignInActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
+        <activity android:name=".PostActivity1" android:label="Post"/>
+        <activity android:name=".PostActivity2" android:label="Post"/>
+        <activity android:name=".PostActivity3" android:label="Post"/>
     </application>
 
 </manifest>
