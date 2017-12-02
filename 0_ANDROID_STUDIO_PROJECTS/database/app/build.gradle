@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 check.dependsOn 'assembleDebugAndroidTest'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion "26.0.2"
 
     defaultConfig {
         applicationId "com.google.firebase.quickstart.database"
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -28,16 +28,21 @@ configurations.all {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.google.firebase:firebase-core:11.4.2'
-    compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'com.android.support:cardview-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
+    implementation 'com.android.support:appcompat-v7:27.0.1'
+    implementation 'com.android.support:recyclerview-v7:27.0.1'
+    implementation 'com.android.support:cardview-v7:27.0.1'
+    implementation 'com.android.support:design:27.0.1'
 
-    compile 'com.firebaseui:firebase-ui-database:3.0.0'
+    implementation 'com.firebaseui:firebase-ui-database:3.0.0'
 
-    compile 'com.google.firebase:firebase-auth:11.4.2'
-    compile 'com.google.firebase:firebase-database:11.4.2'
+    implementation 'com.google.firebase:firebase-core:11.6.0'// Analytics
+    implementation 'com.google.firebase:firebase-auth:11.6.0'// Authentication
+    implementation 'com.google.firebase:firebase-database:11.6.0'// Post info
+    implementation 'com.google.firebase:firebase-storage:11.6.0'// Image storage
+
+    implementation 'com.firebase:firebase-client-android:2.3.1'
+
+    implementation 'com.squareup.picasso:picasso:2.5.2'// Added recently
 
 
     testCompile 'junit:junit:4.12'
