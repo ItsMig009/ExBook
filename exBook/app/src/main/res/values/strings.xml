@@ -148,5 +148,14 @@
     <string name="authors_hint">Enter authors (comma separated) ...</string>
     <string name="next">Next</string>
 
+    <string name="post_now">Post Now</string>
+    <string name="price">Price</string>
+    <string name="dollar">$</string>
+    <string name="negotiable">Negotiable</string>
+    <string name="free">Free</string>
+    <string name="condition">Condition</string>
+    <string name="description">Description</string>
+    <string name="optional_description">Description (optional)</string>
+
 
 </resources>
