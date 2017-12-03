@@ -7,46 +7,48 @@
     format="10"
     ir-eligibility="METHOD_DELETED"
     plugin-version="3.0.0"
-    timestamp="1512263806071"
+    timestamp="1512344127364"
     token="5455393669462344495"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="601" />
+        duration="955" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="106" />
+        duration="69" />
     <task
         name="verifier"
-        duration="18" />
+        duration="15" />
 
+    <artifact
+        location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_5.apk"
+        type="SPLIT" />
     <artifact
         location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_8.apk"
         type="SPLIT" />
 
     <build
         build-mode="FULL"
-        ir-eligibility="FIELD_REMOVED"
-        timestamp="1512256714782"
-        verifier="COLD_SWAP_REQUESTED" >
+        timestamp="1512343966524"
+        verifier="FULL_BUILD_REQUESTED" >
         <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/dep/dependencies.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_0.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_1.apk"
             type="SPLIT" />
         <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_3.apk"
             type="SPLIT" />
         <artifact
+            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_1.apk"
+            type="SPLIT" />
+        <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_2.apk"
+            type="SPLIT" />
+        <artifact
+            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_0.apk"
             type="SPLIT" />
         <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_4.apk"
@@ -61,46 +63,11 @@
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_6.apk"
             type="SPLIT" />
         <artifact
+            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_9.apk"
+            type="SPLIT" />
+        <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_8.apk"
             type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_9.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/outputs/apk/debug/app-debug.apk"
-            type="SPLIT_MAIN" />
-    </build>
-    <build
-        build-mode="COLD"
-        ir-eligibility="R_CLASS_CHANGE"
-        timestamp="1512260502178"
-        verifier="COLD_SWAP_REQUESTED" >
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_3.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_0.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_1.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_4.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_5.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_9.apk"
-            type="SPLIT" />
-        <artifact
-            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_7.apk"
-            type="SPLIT" />
-    </build>
-    <build
-        build-mode="COLD"
-        timestamp="1512262159804"
-        verifier="COLD_SWAP_REQUESTED" >
         <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/outputs/apk/debug/app-debug.apk"
             type="SPLIT_MAIN" />
@@ -108,8 +75,11 @@
     <build
         build-mode="COLD"
         ir-eligibility="METHOD_DELETED"
-        timestamp="1512263806071"
+        timestamp="1512344127364"
         verifier="COLD_SWAP_REQUESTED" >
+        <artifact
+            location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_5.apk"
+            type="SPLIT" />
         <artifact
             location="/Users/migueljardinesjr/ExBooks/0_ANDROID_STUDIO_PROJECTS/database/app/build/intermediates/split-apk/debug/slices/slice_8.apk"
             type="SPLIT" />

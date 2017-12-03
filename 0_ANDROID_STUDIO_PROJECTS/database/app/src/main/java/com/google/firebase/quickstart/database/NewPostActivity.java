@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -57,10 +59,14 @@ public class NewPostActivity extends BaseActivity {
     private ProgressDialog mProgressDialog;
 
     private Uri imageURI = null;
+    private Uri tempUriCameraDeviceNotSuported = null;
+    private Uri downloadURL = null;
 
-    // added recently
+    // TODO:
     private static final int GALLERY_REQUEST_CODE = 2;
     private static final int CAMERA_REQUEST_CODE = 1;
+
+    String randomImageName = random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,25 +86,38 @@ public class NewPostActivity extends BaseActivity {
         // Submit button
         mSubmitButton = findViewById(R.id.fab_submit_post);
 
-        // added recently
+        // TODO:
         mSelectImage = (ImageButton) findViewById(R.id.selectImage);
 
 
         mProgressDialog = new ProgressDialog(this);
 
-        // added recently
+        // TODO:
         mSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //added recently
+                //TODO:
                 //Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 //startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                if (android.os.Build.VERSION.SDK_INT >= 17) {
+                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(takePicture, 0);
+                } else {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    File file = new File(Environment.getExternalStorageDirectory(),randomImageName );
+                    tempUriCameraDeviceNotSuported = Uri.fromFile(file);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, tempUriCameraDeviceNotSuported);
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                }
 
-                intent.setType("image/*");
 
-                startActivityForResult(intent, GALLERY_REQUEST_CODE);
+
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//
+//                intent.setType("image/*");
+//
+//                startActivityForResult(intent, GALLERY_REQUEST_CODE);
             }
         });
 
@@ -117,6 +136,7 @@ public class NewPostActivity extends BaseActivity {
         mProgressDialog.show();
         final String title = mTitleField.getText().toString();
         final String body = mBodyField.getText().toString();
+        // Add Book required fields (XML screen before adding this fields)
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -130,19 +150,21 @@ public class NewPostActivity extends BaseActivity {
             return;
         }
 
-        // Image check for empty uri
+        // TODO: Image check for empty uri done
         if (imageURI != null){
 
 
 
-            String randomImageName = random();
-            StorageReference filePath = mStorage.child("Exbook").child(randomImageName);
+            randomImageName = random();
+            final String userId = getUid();
+            final StorageReference filePath = mStorage.child("Exbook").child(userId).child(randomImageName);
 
             filePath.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                    Uri downloadURL = taskSnapshot.getDownloadUrl();
+                    // TODO: Add download URl to UserPost and Posts for image retrieval
+                    downloadURL = taskSnapshot.getDownloadUrl();
+                    // Please add to user and user posts
                     Toast.makeText(NewPostActivity.this, "Upload Done.",Toast.LENGTH_LONG).show();
 
                 }
@@ -170,6 +192,7 @@ public class NewPostActivity extends BaseActivity {
                         User user = dataSnapshot.getValue(User.class);
 
                         // [START_EXCLUDE]
+                        // TODO: Authenticating User done
                         if (user == null) {
                             // User is null, error out
                             Log.e(TAG, "User " + userId + " is unexpectedly null");
@@ -206,12 +229,28 @@ public class NewPostActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK){
+        if (android.os.Build.VERSION.SDK_INT >= 19) {
 
-            imageURI = data.getData();
-            mSelectImage.setImageURI(imageURI);
+            if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK){
+
+                imageURI = data.getData();
+                mSelectImage.setImageURI(imageURI);
+
+            } else {
+
+                if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK ){
+
+                    imageURI = data.getData();
+                    mSelectImage.setImageURI(imageURI);
+
+                }
+
+            }
+
 
         }
+
+
     }
 
     private void setEditingEnabled(boolean enabled) {
@@ -228,7 +267,7 @@ public class NewPostActivity extends BaseActivity {
     private void writeNewPost(String userId, String username, String title, String body) {
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
-        String key = mDatabase.child("posts").push().getKey();
+        String key = mDatabase.child("posts").push().getKey(); //
         Post post = new Post(userId, username, title, body);
         Map<String, Object> postValues = post.toMap();
 
