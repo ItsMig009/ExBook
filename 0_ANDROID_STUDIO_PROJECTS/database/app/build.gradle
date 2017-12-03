@@ -29,7 +29,7 @@ configurations.all {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.android.support:recyclerview-v7:26.1.0' // for pictures
     compile 'com.android.support:cardview-v7:26.1.0'
     compile 'com.android.support:design:26.1.0'
     compile 'com.firebaseui:firebase-ui-database:3.0.0'
