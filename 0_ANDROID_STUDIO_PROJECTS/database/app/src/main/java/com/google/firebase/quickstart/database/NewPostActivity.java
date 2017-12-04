@@ -1,13 +1,19 @@
 package com.google.firebase.quickstart.database;
 
+import android.*;
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +36,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +46,9 @@ public class NewPostActivity extends BaseActivity {
 
     private static final String TAG = "NewPostActivity";
     private static final String REQUIRED = "Required";
+
     private static final int MAX_LENGTH = 12;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL = 10 ;
 
     // [START declare_database_ref]
     private DatabaseReference mDatabase;
@@ -59,58 +68,65 @@ public class NewPostActivity extends BaseActivity {
     private ProgressDialog mProgressDialog;
 
     private Uri imageURI = null;
-    private Uri tempUriCameraDeviceNotSuported = null;
+    //private Uri tempUriCameraDeviceNotSuported = null;
     private Uri downloadURL = null;
 
     // TODO:
     private static final int GALLERY_REQUEST_CODE = 2;
     private static final int CAMERA_REQUEST_CODE = 1;
 
-    String randomImageName = random();
+    private static final String randomImageName = random();;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_post);
 
-        // [START initialize_database_ref]
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // [START initialize_database_ref]
         mStorage = FirebaseStorage.getInstance().getReference();
-
-
 
         mTitleField = findViewById(R.id.field_title);
         mBodyField = findViewById(R.id.field_body);
-        // Submit button
         mSubmitButton = findViewById(R.id.fab_submit_post);
-
-        // TODO:
         mSelectImage = (ImageButton) findViewById(R.id.selectImage);
-
-
         mProgressDialog = new ProgressDialog(this);
 
-        // TODO:
+
+
+
         mSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //TODO:
+                // check permissions at runtime
+                setPermissionCheck();
+
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                if (intent.resolveActivity(getPackageManager()) != null) {
+
+                    ContentValues values = new ContentValues(1);
+
+                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+
+                    imageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
+
+                }
                 //Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 //startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-                if (android.os.Build.VERSION.SDK_INT >= 17) {
-                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
-                } else {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    File file = new File(Environment.getExternalStorageDirectory(),randomImageName );
-                    tempUriCameraDeviceNotSuported = Uri.fromFile(file);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, tempUriCameraDeviceNotSuported);
-                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
-                }
 
+//                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//
+//                startActivityForResult(takePicture, CAMERA_REQUEST_CODE);
+//
+//
 
 
 //                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -118,8 +134,12 @@ public class NewPostActivity extends BaseActivity {
 //                intent.setType("image/*");
 //
 //                startActivityForResult(intent, GALLERY_REQUEST_CODE);
+
+
+
             }
         });
+
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +147,55 @@ public class NewPostActivity extends BaseActivity {
                 submitPost();
             }
         });
+    }
+
+    private void setPermissionCheck() {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(NewPostActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(NewPostActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL);
+
+                // MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
+            }
+
+
+
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+
+
+
+
+
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    return;
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
     private void submitPost() {
@@ -153,15 +222,15 @@ public class NewPostActivity extends BaseActivity {
         // TODO: Image check for empty uri done
         if (imageURI != null){
 
-
-
-            randomImageName = random();
+            //randomImageName = random();
             final String userId = getUid();
-            final StorageReference filePath = mStorage.child("Exbook").child(userId).child(randomImageName);
+            final StorageReference filePath = mStorage.child("Exbook").child(randomImageName);
+
 
             filePath.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
                     // TODO: Add download URl to UserPost and Posts for image retrieval
                     downloadURL = taskSnapshot.getDownloadUrl();
                     // Please add to user and user posts
@@ -175,6 +244,8 @@ public class NewPostActivity extends BaseActivity {
 
                 }
             });
+        }else {
+            Log.w(TAG,"imageUri is Null",new Exception());
         }
 
 
@@ -225,31 +296,14 @@ public class NewPostActivity extends BaseActivity {
         // IMAGE to DATABASE
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (android.os.Build.VERSION.SDK_INT >= 19) {
-
-            if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK){
-
-                imageURI = data.getData();
-                mSelectImage.setImageURI(imageURI);
-
-            } else {
-
-                if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK ){
-
-                    imageURI = data.getData();
-                    mSelectImage.setImageURI(imageURI);
-
-                }
-
-            }
-
-
-        }
-
+        //imageURI = data.getData();
+        mSelectImage.setImageURI(imageURI);
 
     }
 
