@@ -1,21 +1,26 @@
 package com.google.firebase.quickstart.database;
 
+import android.*;
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.FileProvider;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,90 +35,108 @@ import com.google.firebase.quickstart.database.models.User;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
+
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class NewPostActivity extends BaseActivity {
 
     private static final String TAG = "NewPostActivity";
     private static final String REQUIRED = "Required";
 
+    private static final int MAX_LENGTH = 12;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL = 10 ;
+
     // [START declare_database_ref]
     private DatabaseReference mDatabase;
     // [END declare_database_ref]
 
-    // [START declare_storage_ref]
-    private StorageReference mStorage;// Image storage reference.
-    //[END declare_storage_ref]
+    // [START declare_database_ref]
+    protected StorageReference mStorage;// Image storage reference.
+
 
     private EditText mTitleField;
     private EditText mBodyField;
-    protected Button mSelectImage; // added recently: Button for Image uploaded
-    protected Button mUploadBtn; // added recently: Button for Image Captured and Uploaded
-    protected ImageView mImageView;
+    //protected Button mUpload; // Button for Image
+    private ImageButton mSelectImage;
+
     private FloatingActionButton mSubmitButton;
-    private ProgressDialog mProgress;
 
-    // added recently
-    private static final int GALLERY_INTENT = 2;
-    private static final int CAMERA_REQUEST_CODE = 1 ;
-    String mCurrentPhotoPath;
+    private ProgressDialog mProgressDialog;
 
+    private Uri imageURI = null;
+    //private Uri tempUriCameraDeviceNotSuported = null;
+    private Uri downloadURL = null;
+
+    // TODO:
+    private static final int GALLERY_REQUEST_CODE = 2;
+    private static final int CAMERA_REQUEST_CODE = 1;
+
+    private static final String randomImageName = random();;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_post);
 
-        // [START initialize_database_ref]
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        // [END initialize_database_ref]
 
-        // [START initialize_database_ref]
         mStorage = FirebaseStorage.getInstance().getReference();
-        // [END initialize_database_ref]
-
 
         mTitleField = findViewById(R.id.field_title);
         mBodyField = findViewById(R.id.field_body);
-        // Submit button
         mSubmitButton = findViewById(R.id.fab_submit_post);
+        mSelectImage = (ImageButton) findViewById(R.id.selectImage);
+        mProgressDialog = new ProgressDialog(this);
 
-        // added recently
-        mSelectImage = (Button) findViewById(R.id.selectImage);
 
-        // added recently
-        mUploadBtn = (Button) findViewById((R.id.captureImage));
 
-        // added recently
-        mImageView = findViewById(R.id.imageView);
 
-        // added recently
         mSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, GALLERY_INTENT);
-            }
-        });
+                // check permissions at runtime
+                setPermissionCheck();
 
-        // added recently
-        mProgress = new ProgressDialog(this);
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        mUploadBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                dispatchTakePictureIntent();
-                //startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+
+                    ContentValues values = new ContentValues(1);
+
+                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+
+                    imageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
+
+                }
+                //Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                //startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+
+//                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//
+//                startActivityForResult(takePicture, CAMERA_REQUEST_CODE);
+//
+//
+
+
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//
+//                intent.setType("image/*");
+//
+//                startActivityForResult(intent, GALLERY_REQUEST_CODE);
+
+
+
             }
         });
 
@@ -126,32 +149,63 @@ public class NewPostActivity extends BaseActivity {
         });
     }
 
-    private void dispatchTakePictureIntent() {
+    private void setPermissionCheck() {
 
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        int permissionCheck = ContextCompat.checkSelfPermission(NewPostActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(NewPostActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL);
 
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File...
+                // MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
             }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+
+
+
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+
+
+
+
+
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    return;
+                }
+                return;
             }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
     private void submitPost() {
+
+
+        mProgressDialog.setMessage("Uploading Image ...");
+        mProgressDialog.show();
         final String title = mTitleField.getText().toString();
         final String body = mBodyField.getText().toString();
+        // Add Book required fields (XML screen before adding this fields)
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -164,6 +218,36 @@ public class NewPostActivity extends BaseActivity {
             mBodyField.setError(REQUIRED);
             return;
         }
+
+        // TODO: Image check for empty uri done
+        if (imageURI != null){
+
+            //randomImageName = random();
+            final String userId = getUid();
+            final StorageReference filePath = mStorage.child("Exbook").child(randomImageName);
+
+
+            filePath.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    // TODO: Add download URl to UserPost and Posts for image retrieval
+                    downloadURL = taskSnapshot.getDownloadUrl();
+                    // Please add to user and user posts
+                    Toast.makeText(NewPostActivity.this, "Upload Done.",Toast.LENGTH_LONG).show();
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG,"File could not be uploaded",new Exception());
+
+                }
+            });
+        }else {
+            Log.w(TAG,"imageUri is Null",new Exception());
+        }
+
 
         // Disable button so there are no multi-posts
         setEditingEnabled(false);
@@ -179,6 +263,7 @@ public class NewPostActivity extends BaseActivity {
                         User user = dataSnapshot.getValue(User.class);
 
                         // [START_EXCLUDE]
+                        // TODO: Authenticating User done
                         if (user == null) {
                             // User is null, error out
                             Log.e(TAG, "User " + userId + " is unexpectedly null");
@@ -187,7 +272,6 @@ public class NewPostActivity extends BaseActivity {
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // Write new post
-                            // TODO: add picture url for retrieval of image from storage
                             writeNewPost(userId, user.username, title, body);
                         }
 
@@ -206,85 +290,22 @@ public class NewPostActivity extends BaseActivity {
                     }
                 });
         // [END single_value_read]
+
+
+
+        // IMAGE to DATABASE
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
+        //imageURI = data.getData();
+        mSelectImage.setImageURI(imageURI);
 
-        if (requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
-
-            Uri uri = data.getData(); // Uri can be stored in firebase
-
-            StorageReference filePath = mStorage.child("users").child(uri.getLastPathSegment());
-
-            filePath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                    Toast.makeText(NewPostActivity.this, "Upload Done.",Toast.LENGTH_LONG).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG,"File could not be uploaded",new Exception());
-
-                }
-            });
-
-
-        }
-
-        // added recently: for camera
-        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK){
-
-            mProgress.setMessage("Uploading Image ...");
-            mProgress.show();
-
-            Uri uri = data.getData();
-
-            StorageReference filepath = mStorage.child("uploaded_by_user").child(uri.getLastPathSegment());
-
-            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                    mProgress.dismiss();
-                    // recently added: Shows message on new post activity when file is succesfully uploadded
-                    Uri downloadUri = taskSnapshot.getDownloadUrl();
-
-                    Picasso.with(NewPostActivity.this).load(downloadUri).fit().centerCrop().into(mImageView);
-                    Toast.makeText(NewPostActivity.this, "Uploading Finished",Toast.LENGTH_LONG).show();
-
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-
-                    Log.w(TAG,"File could not be uploaded",new Exception());
-
-                }
-            });
-        }
     }
-
-    // added recently
-    private File createImageFile() throws IOException {
-    // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-        return image;
-    }
-
 
     private void setEditingEnabled(boolean enabled) {
         mTitleField.setEnabled(enabled);
@@ -296,14 +317,11 @@ public class NewPostActivity extends BaseActivity {
         }
     }
 
-
-
     // [START write_fan_out]
     private void writeNewPost(String userId, String username, String title, String body) {
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
-
-        String key = mDatabase.child("posts").push().getKey();
+        String key = mDatabase.child("posts").push().getKey(); //
         Post post = new Post(userId, username, title, body);
         Map<String, Object> postValues = post.toMap();
 
@@ -314,4 +332,42 @@ public class NewPostActivity extends BaseActivity {
         mDatabase.updateChildren(childUpdates);
     }
     // [END write_fan_out]
+
+    // START 
+
+    public static String random() {
+        Random generator = new Random();
+        StringBuilder randomStringBuilder = new StringBuilder();
+        int randomLength = generator.nextInt(MAX_LENGTH);
+        char tempChar;
+        for (int i = 0; i < randomLength; i++){
+            tempChar = (char) (generator.nextInt(96) + 32);
+            randomStringBuilder.append(tempChar);
+        }
+        return randomStringBuilder.toString();
+    }
+
+    @Override
+    protected void onDestroy() {
+        dismissProgressDialog();
+        super.onDestroy();
+    }
+
+    private void dismissProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    private void showProgressDialog1() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(NewPostActivity.this);
+            mProgressDialog.setMessage("Loading. Please wait...");
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setCancelable(false);
+        }
+        mProgressDialog.show();
+    }
+
+
 }
