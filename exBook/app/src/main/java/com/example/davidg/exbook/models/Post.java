@@ -1,5 +1,6 @@
 package com.example.davidg.exbook.models;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -24,6 +25,7 @@ public class Post implements Parcelable{
     public boolean free;
     public Condition condition;
     public String description;
+    public Uri coverPhotoUri;
     //TODO: add cover picture field
 
     //public int rating = 0;
@@ -33,10 +35,11 @@ public class Post implements Parcelable{
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
         currency = Currency.USD;
         condition = Condition.OTHER;
+        coverPhotoUri = Uri.parse("");
     }
 
     public Post(Parcel in){
-        String []data =  new String[11];
+        String []data =  new String[12];
 
         in.readStringArray(data);
         userId = data[0];
@@ -50,6 +53,7 @@ public class Post implements Parcelable{
         free = Boolean.parseBoolean(data[8]);
         condition = Condition.valueOf(data[9]);
         description = data[10];
+        coverPhotoUri = Uri.parse(data[11]);
 
     }
 
@@ -76,6 +80,7 @@ public class Post implements Parcelable{
         result.put("free",Boolean.toString(free));
         result.put("condition",condition.name());
         result.put("description",description);
+        result.put("coverPhotoUri",coverPhotoUri.toString());
 //        result.put("stars", stars);
 
         return result;
@@ -100,7 +105,8 @@ public class Post implements Parcelable{
                 Boolean.toString(negotiable),
                 Boolean.toString(free),
                 condition.name(),
-                description
+                description,
+                coverPhotoUri.toString()
         };
         parcel.writeStringArray(postFields);
     }

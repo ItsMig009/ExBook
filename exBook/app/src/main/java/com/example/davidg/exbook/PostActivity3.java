@@ -1,7 +1,9 @@
 package com.example.davidg.exbook;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -20,12 +22,17 @@ import android.widget.Toast;
 import com.example.davidg.exbook.helpers.BottomNavigationViewHelper;
 import com.example.davidg.exbook.models.Post;
 import com.example.davidg.exbook.models.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +55,11 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
     private Post post;
     private static final String REQUIRED = "Required"; //TODO: make it @string
     private static final String TAG = "PostActivity_3";
+
+    // [START declare_database_ref]
+    protected StorageReference mStorage;// Image storage reference.
+    // [END declare_database_ref]
+
 
 
     @Override
@@ -93,6 +105,10 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         });
 
         post = getIntent().getParcelableExtra("MyPost");
+
+        // [START initialize_database_ref]
+        mStorage = FirebaseStorage.getInstance().getReference();
+        // [END initialize_database_ref]
 
     }
 
@@ -181,6 +197,7 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
                             // Write new post
                             //user.username is the user who made the post. Un-use for now
                             writeNewPost(price, description);
+                            submitPhoto();
                         }
 
                         // Finish this Activity, back to the stream
@@ -223,6 +240,26 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         mDatabase.updateChildren(childUpdates);
     }
     // [END write_fan_out]
+
+    private void submitPhoto(){
+        Uri uri = post.coverPhotoUri;
+
+        StorageReference filePath = mStorage.child("uploaded_by_user").child(uri.getLastPathSegment());
+
+        filePath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                Toast.makeText(PostActivity3.this, "Photo Upload Done.",Toast.LENGTH_LONG).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG,"File could not be uploaded",new Exception());
+
+            }
+        });
+    }
 
     private boolean validateFields(String price){
         // price is required

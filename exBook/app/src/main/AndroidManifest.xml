@@ -32,7 +32,8 @@
             <!-- </intent-filter> -->
         </activity>
         <activity android:name=".PostActivity1" android:label="Post"/>
-        <activity android:name=".PostActivity2" android:label="Post"/>
+        <activity android:name=".PostActivity2" android:label="Post"
+            android:screenOrientation="portrait"/>
         <activity android:name=".PostActivity3" android:label="Post"/>
     </application>
 

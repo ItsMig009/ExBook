@@ -88,6 +88,7 @@ public class PostActivity1 extends AppCompatActivity  {
         final String version = versionEditText.getText().toString();
         final String authors = authorsEditText.getText().toString(); // maybe parse into String []
 
+
         //check that all fields have been completed
         if(validateFields(isbn,title,version,authors) == false){
             return;

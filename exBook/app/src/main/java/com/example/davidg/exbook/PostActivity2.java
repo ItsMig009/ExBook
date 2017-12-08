@@ -2,6 +2,7 @@ package com.example.davidg.exbook;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,11 @@ import android.widget.ImageButton;
 
 import com.example.davidg.exbook.helpers.BottomNavigationViewHelper;
 import com.example.davidg.exbook.models.Post;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 public class PostActivity2 extends AppCompatActivity {
 
@@ -21,6 +27,20 @@ public class PostActivity2 extends AppCompatActivity {
     private ImageButton takePhotoImgButton;
     private ImageButton coverPhotoImgButton;
     private Post post;
+    private static final int GALLERY_INTENT = 2;
+    private static final String TAG = "PostActivity_2";
+
+    //TODO: to be removed START
+
+    // [START declare_database_ref]
+    protected StorageReference mStorage;// Image storage reference.
+    // [END declare_database_ref]
+
+    // [START declare_database_ref]
+    private DatabaseReference mDatabase;
+    // [END declare_database_ref]
+
+    //TODO: to be removed END
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +68,31 @@ public class PostActivity2 extends AppCompatActivity {
         coverPhotoImgButton = findViewById(R.id.ib_cover_image);
 
         post = getIntent().getParcelableExtra("MyPost");
+
+        selectPhotoImgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+
+                intent.setType("image/*");
+
+                startActivityForResult(intent, GALLERY_INTENT);
+            }
+        });
+
+        //TODO: to be removed START
+
+        // [START initialize_database_ref]
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        // [END initialize_database_ref]
+
+        // [START initialize_database_ref]
+        mStorage = FirebaseStorage.getInstance().getReference();
+        // [END initialize_database_ref]
+
+        //TODO: to be removed END
+
+
     }
 
     @Override
@@ -68,5 +113,20 @@ public class PostActivity2 extends AppCompatActivity {
         //TODO: pass editText info to next activity to submit post in the end
 
         startActivity(startNextPostActivity);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
+
+            Uri uri = data.getData();
+
+            Picasso.with(this).load(uri).fit().centerInside().into(coverPhotoImgButton);
+            coverPhotoImgButton.setBackground(null);
+            post.coverPhotoUri = uri;
+
+        }
     }
 }
