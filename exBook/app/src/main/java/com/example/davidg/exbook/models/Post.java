@@ -26,6 +26,9 @@ public class Post implements Parcelable{
     public Condition condition;
     public String description;
     public Uri coverPhotoUri;
+
+    public int starCount = 0;
+    public Map<String, Boolean> stars = new HashMap<>();
     //TODO: add cover picture field
 
     //public int rating = 0;
@@ -81,7 +84,8 @@ public class Post implements Parcelable{
         result.put("condition",condition.name());
         result.put("description",description);
         result.put("coverPhotoUri",coverPhotoUri.toString());
-//        result.put("stars", stars);
+        result.put("starCount", starCount);
+        result.put("stars", stars);
 
         return result;
     }
