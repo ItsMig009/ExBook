@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -65,6 +66,21 @@ public class PostActivity1 extends AppCompatActivity  {
         versionEditText = (EditText) findViewById(R.id.et_version_number);
         authorsEditText = (EditText) findViewById(R.id.et_authors);
 
+        //
+        final View activityRootView = findViewById(R.id.post1);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            public void onGlobalLayout() {
+                int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+
+                if (heightDiff > 250) {
+                    // keyboard is up
+                    bottomNavigationView.setVisibility(View.INVISIBLE);
+                } else {
+                    // keyboard is down
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
     }
 
@@ -117,24 +133,28 @@ public class PostActivity1 extends AppCompatActivity  {
         // isbn is required
         if (TextUtils.isEmpty(isbn)) {
             isbnEditText.setError(REQUIRED);
+            isbnEditText.requestFocus();
             return false;
         }
 
         // title is required
         if (TextUtils.isEmpty(title)) {
             titleEditText.setError(REQUIRED);
+            titleEditText.requestFocus();
             return false;
         }
 
         // isbn is required
         if (TextUtils.isEmpty(version)) {
             versionEditText.setError(REQUIRED);
+            versionEditText.requestFocus();
             return false;
         }
 
         // title is required
         if (TextUtils.isEmpty(authors)) {
             authorsEditText.setError(REQUIRED);
+            authorsEditText.requestFocus();
             return false;
         }
         return true;
@@ -154,5 +174,10 @@ public class PostActivity1 extends AppCompatActivity  {
             nextButton.setVisibility(View.GONE);
         }
     }
+
+
+
+
+
 
 }

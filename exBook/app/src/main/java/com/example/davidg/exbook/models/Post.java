@@ -1,6 +1,5 @@
 package com.example.davidg.exbook.models;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -25,7 +24,9 @@ public class Post implements Parcelable{
     public boolean free;
     public Condition condition;
     public String description;
-    public Uri coverPhotoUri;
+    public String coverPhotoUri;
+    public String coverPhotoUrl;
+    public String postId;
     //TODO: add cover picture field
 
     //public int rating = 0;
@@ -35,11 +36,10 @@ public class Post implements Parcelable{
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
         currency = Currency.USD;
         condition = Condition.OTHER;
-        coverPhotoUri = Uri.parse("");
     }
 
     public Post(Parcel in){
-        String []data =  new String[12];
+        String []data =  new String[14];
 
         in.readStringArray(data);
         userId = data[0];
@@ -53,8 +53,9 @@ public class Post implements Parcelable{
         free = Boolean.parseBoolean(data[8]);
         condition = Condition.valueOf(data[9]);
         description = data[10];
-        coverPhotoUri = Uri.parse(data[11]);
-
+        coverPhotoUri = data[11];
+        coverPhotoUrl = data[12];
+        postId = data[13];
     }
 
 //    public Post(String userId, String isbn, String title, int version, String authors) {
@@ -75,12 +76,14 @@ public class Post implements Parcelable{
         result.put("version", version);
         result.put("authors", authors);
         result.put("price",price);
-        result.put("currency",currency.name());
-        result.put("negotiable",Boolean.toString(negotiable));
-        result.put("free",Boolean.toString(free));
-        result.put("condition",condition.name());
+        result.put("currency",currency);
+        result.put("negotiable",negotiable);
+        result.put("free",free);
+        result.put("condition",condition);
         result.put("description",description);
-        result.put("coverPhotoUri",coverPhotoUri.toString());
+        result.put("coverPhotoUri",coverPhotoUri);
+        result.put("coverPhotoUrl",coverPhotoUrl);
+        result.put("postId",postId);
 //        result.put("stars", stars);
 
         return result;
@@ -106,7 +109,9 @@ public class Post implements Parcelable{
                 Boolean.toString(free),
                 condition.name(),
                 description,
-                coverPhotoUri.toString()
+                coverPhotoUri,
+                coverPhotoUrl,
+                postId
         };
         parcel.writeStringArray(postFields);
     }
@@ -168,6 +173,24 @@ public class Post implements Parcelable{
                 return Condition.NEW;
             default:
                 return Condition.OTHER;
+        }
+    }
+
+    //TODO: unhardcode string cases in switch stamt and values.array.xml
+    public static String getCondition(Condition condition){
+        switch(condition){
+            case DAMAGED:
+                return "Damaged (pages missing)";
+            case SOME_TEAR:
+                return "Some Tear (highlighted, cover scratches)";
+            case USED:
+                return "Used (normal wear)";
+            case LIKE_NEW:
+                return "Like New";
+            case NEW:
+                return "New";
+            default:
+                return "Other (see description)";
         }
     }
 

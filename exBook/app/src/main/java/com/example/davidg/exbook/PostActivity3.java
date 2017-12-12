@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,8 +23,10 @@ import android.widget.Toast;
 import com.example.davidg.exbook.helpers.BottomNavigationViewHelper;
 import com.example.davidg.exbook.models.Post;
 import com.example.davidg.exbook.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,6 +62,8 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
     // [START declare_database_ref]
     protected StorageReference mStorage;// Image storage reference.
     // [END declare_database_ref]
+
+    private Toast toast;
 
 
 
@@ -110,6 +115,21 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         mStorage = FirebaseStorage.getInstance().getReference();
         // [END initialize_database_ref]
 
+        final View activityRootView = findViewById(R.id.post3);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            public void onGlobalLayout() {
+                int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+
+                if (heightDiff > 250) {
+                    // keyboard is up
+                    bottomNavigationView.setVisibility(View.INVISIBLE);
+                } else {
+                    // keyboard is down
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -157,7 +177,6 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
     private void submitPost(View view) {
 
         final String price = priceEditText.getText().toString();
-        final String description = descriptionEditText.getText().toString();
 
         // Description field is optional, so it does not need to be validated
         if(validateFields(price) == false){
@@ -166,14 +185,13 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
 
         // Disable button so there are no multi-posts
         setEditingEnabled(false);
-        Toast.makeText(this, "Posting...", Toast.LENGTH_SHORT).show();
 
         // [START single_value_read]
         final String userId = BaseActivity.getUid();
 
         //TODO: show proper dialog box instead of a toast message
         if(!userId.equals(post.userId)){
-            Toast.makeText(this, "User ids are not compatible. Unexpected exception occurred.", Toast.LENGTH_SHORT).show();
+            showToast("User ids are not compatible. Unexpected exception occurred.",Toast.LENGTH_SHORT);
             return;
         }
 
@@ -190,20 +208,13 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
                         if (user == null) {
                             // User is null, error out
                             Log.e(TAG, "User " + userId + " is unexpectedly null");
-                            Toast.makeText(PostActivity3.this,
-                                    "Error: could not fetch user.",
-                                    Toast.LENGTH_SHORT).show();
+                            showToast("Error: could not fetch user.", Toast.LENGTH_SHORT);
                         } else {
                             // Write new post
                             //user.username is the user who made the post. Un-use for now
-                            writeNewPost(price, description);
+                            //First uplodad the photo to get the download url that is going to be used later to get post photos
                             submitPhoto();
                         }
-
-                        // Finish this Activity, back to the stream
-                        setEditingEnabled(true);
-                        finishAffinity();
-
                         // [END_EXCLUDE]
                     }
 
@@ -217,8 +228,8 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
 
                 });
 
-        // go back to main page
-        startActivity(new Intent(this,MainActivity.class));
+//        // go back to main page
+
         // [END single_value_read]
     }
 
@@ -228,6 +239,7 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
         String key = mDatabase.child("posts").push().getKey();
+        post.postId = key;
         post.price = Double.parseDouble(price);
         post.description = description;
 
@@ -237,12 +249,35 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         childUpdates.put("/posts/" + key, postValues);
         childUpdates.put("/user-posts/" + post.userId + "/" + key, postValues);
 
-        mDatabase.updateChildren(childUpdates);
+        showToast("Posting...", Toast.LENGTH_SHORT);
+
+        mDatabase.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if(task.isComplete()){
+                    showToast("Book has been successfully posted", Toast.LENGTH_SHORT);
+                    // Finish this Activity, back to the stream
+                    setEditingEnabled(true);
+                    finishAffinity();
+                    startActivity(new Intent(PostActivity3.this,MainActivity.class));
+                }
+                else{
+                    showToast("task not completed",Toast.LENGTH_LONG);
+                }
+
+            }
+        });
+
+
+
     }
     // [END write_fan_out]
 
     private void submitPhoto(){
-        Uri uri = post.coverPhotoUri;
+        Uri uri = Uri.parse(post.coverPhotoUri);
+        final String price = priceEditText.getText().toString();
+        final String description = descriptionEditText.getText().toString();
 
         StorageReference filePath = mStorage.child("uploaded_by_user").child(uri.getLastPathSegment());
 
@@ -250,13 +285,26 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                Toast.makeText(PostActivity3.this, "Photo Upload Done.",Toast.LENGTH_LONG).show();
+                //set up post download Url here
+                post.coverPhotoUrl = taskSnapshot.getDownloadUrl().toString();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG,"File could not be uploaded",new Exception());
 
+            }
+        }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if(task.isComplete()){
+                    showToast("Photo Upload Done.",Toast.LENGTH_SHORT);
+                }else{
+                    showToast("Waiting to upload photo",Toast.LENGTH_SHORT);
+                }
+
+                //After phot have finished uploading. Complete writing the post
+                writeNewPost(price, description);
             }
         });
     }
@@ -265,6 +313,7 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         // price is required
         if (TextUtils.isEmpty(price)) {
             priceEditText.setError(REQUIRED);
+            priceEditText.requestFocus();
             return false;
         }
         return true;
@@ -310,5 +359,16 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
             default:
                 //unexpected error occurred
         }
+    }
+
+    void showToast(String text, int duration)
+    {
+        if(toast != null)
+        {
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, text, duration);
+        toast.show();
+
     }
 }

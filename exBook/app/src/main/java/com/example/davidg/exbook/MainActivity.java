@@ -3,7 +3,7 @@ package com.example.davidg.exbook;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
@@ -23,13 +23,18 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.davidg.exbook.data.SunshinePreferences;
 import com.example.davidg.exbook.helpers.BottomNavigationViewHelper;
-import com.example.davidg.exbook.utilities.NetworkUtils;
-import com.example.davidg.exbook.utilities.OpenWeatherJsonUtils;
+import com.example.davidg.exbook.models.Post;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ListingAdapter.ListingAdapterOnClickHandler {
@@ -45,6 +50,10 @@ public class MainActivity extends AppCompatActivity
     private MenuItem loginDrawableItemMenu = null;
     private MenuItem logoutDrawableItemMenu = null;
     private BottomNavigationView bottomNavigationView;
+    private List<Post> list;
+    private DatabaseReference databaseReference;
+    private StorageReference storageReference;
+
 
 
     @Override
@@ -53,7 +62,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -80,33 +88,19 @@ public class MainActivity extends AppCompatActivity
          */
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_book_listing);
 
-        /*
-         * LinearLayoutManager can support HORIZONTAL or VERTICAL orientations. The reverse layout
-         * parameter is useful mostly for HORIZONTAL layouts that should reverse for right to left
-         * languages.
-         */
+        databaseReference = FirebaseDatabase.getInstance().getReference("posts");
 
-//        LinearLayoutManager layoutManager
-//                = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
         layoutManager = new StaggeredGridLayoutManager(3,1);
 
         mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setItemViewCacheSize(24);
 
         /*
          * Use this setting to improve performance if you know that changes in content do not
          * change the child layout size in the RecyclerView
          */
         mRecyclerView.setHasFixedSize(true);
-
-        // COMPLETED (11) Pass in 'this' as the ForecastAdapterOnClickHandler
-        /*
-         * The ForecastAdapter is responsible for linking our weather data with the Views that
-         * will end up displaying our weather data.
-         */
-        mListingAdapter = new ListingAdapter(this);
-
-        /* Setting the adapter attaches it to the RecyclerView in our layout. */
-        mRecyclerView.setAdapter(mListingAdapter);
 
         /*
          * The ProgressBar that will indicate to the user that we are loading data. It will be
@@ -118,7 +112,8 @@ public class MainActivity extends AppCompatActivity
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         /* Once all of our views are setup, we can load the weather data. */
-        loadWeatherData();
+        //loadWeatherData();
+
 
         // Check whether the user is already logged in or not
         checkLogInStatus();
@@ -143,6 +138,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+
     }
 
     @Override
@@ -189,6 +185,12 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
         // check if user is logged on
         checkLogInStatus();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        populatePostList();
     }
 
     public void checkLogInStatus(){
@@ -296,12 +298,12 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    private void loadWeatherData() {
-        showWeatherDataView();
-
-        String location = SunshinePreferences.getPreferredWeatherLocation(this);
-        new FetchWeatherTask().execute(location);
-    }
+//    private void loadWeatherData() {
+//        showWeatherDataView();
+//
+//        String location = SunshinePreferences.getPreferredWeatherLocation(this);
+//        new FetchWeatherTask().execute(location);
+//    }
 
     /**
      * This method will make the View for the weather data visible and
@@ -318,62 +320,103 @@ public class MainActivity extends AppCompatActivity
      * This method is overridden by our MainActivity class in order to handle RecyclerView item
      * clicks.
      *
-     * @param weatherForDay The weather for the day that was clicked
+     * @param clickedPost The weather for the day that was clicked
      */
     @Override
-    public void onClick(String weatherForDay) {
+    public void onClick(Post clickedPost) {
         Context context = this;
-        Toast.makeText(context, weatherForDay, Toast.LENGTH_SHORT)
+        Toast.makeText(context, clickedPost.postId, Toast.LENGTH_SHORT)
                 .show();
+        Intent postDescriptionIntent = new Intent(this,PostDescription.class);
+        postDescriptionIntent.putExtra("PostDescription",clickedPost);
+        startActivity(postDescriptionIntent);
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-
-            /* If there's no zip code, there's nothing to look up. */
-            if (params.length == 0) {
-                return null;
-            }
-
-            String location = params[0];
-            URL weatherRequestUrl = NetworkUtils.buildUrl(location);
-
-            try {
-                String jsonWeatherResponse = NetworkUtils
-                        .getResponseFromHttpUrl(weatherRequestUrl);
-
-                String[] simpleJsonWeatherData = OpenWeatherJsonUtils
-                        .getSimpleWeatherStringsFromJson(MainActivity.this, jsonWeatherResponse);
-
-                return simpleJsonWeatherData;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String[] weatherData) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (weatherData != null) {
-                showWeatherDataView();
-                mListingAdapter.setWeatherData(weatherData);
-            }
-//            else {
-//                showErrorMessage();
+//    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            mLoadingIndicator.setVisibility(View.VISIBLE);
+//        }
+//
+//        @Override
+//        protected String[] doInBackground(String... params) {
+//
+//            /* If there's no zip code, there's nothing to look up. */
+//            if (params.length == 0) {
+//                return null;
 //            }
-        }
-    }
+//
+//            String location = params[0];
+//            URL weatherRequestUrl = NetworkUtils.buildUrl(location);
+//
+//            try {
+//                String jsonWeatherResponse = NetworkUtils
+//                        .getResponseFromHttpUrl(weatherRequestUrl);
+//
+//                String[] simpleJsonWeatherData = OpenWeatherJsonUtils
+//                        .getSimpleWeatherStringsFromJson(MainActivity.this, jsonWeatherResponse);
+//
+//                return simpleJsonWeatherData;
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String[] weatherData) {
+//            mLoadingIndicator.setVisibility(View.INVISIBLE);
+//            if (weatherData != null) {
+//                showWeatherDataView();
+//                mListingAdapter.setWeatherData(weatherData);
+//            }
+////            else {
+////                showErrorMessage();
+////            }
+//        }
+//    }
 
+
+
+    private void populatePostList(){
+
+
+        // Adding Add Value Event Listener to databaseReference.
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+
+                list = new ArrayList<>();
+
+                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+
+                    Post post = postSnapshot.getValue(Post.class);
+                    //ImageUploadInfo imageUploadInfo = new ImageUploadInfo(post.title,post.coverPhotoUrl,post.coverPhotoUri,post.postId);
+
+                    list.add(post);
+                }
+
+                mListingAdapter = new ListingAdapter(MainActivity.this,MainActivity.this,list);
+
+                /* Setting the adapter attaches it to the RecyclerView in our layout. */
+                mRecyclerView.setAdapter(mListingAdapter);
+
+                // Hiding the progress dialog.
+                //progressDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                // Hiding the progress dialog.
+                //progressDialog.dismiss();
+
+            }
+        });
+    }
 
 
 

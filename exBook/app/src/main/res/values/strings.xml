@@ -138,24 +138,24 @@
     <string name="add_book_photo_from_library">Add Book Photo From Library</string>
 
     <string name="barcode_scanner">"    Scan Book Barcode    "</string>
-    <string name="isbn">ISBN</string>
+    <string name="isbn">ISBN:</string>
     <string name="isbn_hint">Enter ISB # ...</string>
-    <string name="title">Title</string>
+    <string name="title">Title:</string>
     <string name="title_hint">Book title ...</string>
-    <string name="version">Version</string>
+    <string name="version">Version:</string>
     <string name="version_hint">Version # ...</string>
-    <string name="authors">Authors</string>
+    <string name="authors">Authors:</string>
     <string name="authors_hint">Enter authors (comma separated) ...</string>
     <string name="next">Next</string>
 
     <string name="post_now">Post Now</string>
-    <string name="price">Price</string>
+    <string name="price">Price:</string>
     <string name="dollar">$</string>
-    <string name="negotiable">Negotiable</string>
-    <string name="free">Free</string>
-    <string name="condition">Condition</string>
-    <string name="description">Description</string>
-    <string name="optional_description">Description (optional)</string>
+    <string name="negotiable">Negotiable:</string>
+    <string name="free">Free:</string>
+    <string name="condition">Condition:</string>
+    <string name="description">Description:</string>
+    <string name="optional_description">Description (optional):</string>
 
 
 </resources>

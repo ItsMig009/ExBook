@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/post1"
     tools:context="com.example.davidg.exbook.PostActivity1">
 
         <ScrollView
@@ -104,7 +105,7 @@
                     android:background="@drawable/textinputborder"
                     android:gravity="fill_horizontal"
                     android:hint="@string/version_hint"
-                    android:inputType="numberDecimal"
+                    android:inputType="number"
                     android:scrollHorizontally="true"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -19,54 +20,80 @@
         <!--android:src="@drawable/firebase_lockup_400" />-->
 
     <LinearLayout
-        android:id="@+id/layout_email_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/field_email"
+        <LinearLayout
+            android:id="@+id/layout_email_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:hint="@string/hint_email"
-            android:inputType="textEmailAddress"
-            android:maxLines="1" />
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/field_password"
-            android:layout_width="match_parent"
+
+            <ImageView
+                android:id="@+id/fiu_logo"
+                android:layout_width="300dp"
+                android:layout_height="100dp"
+                app:srcCompat="@drawable/fiu_logo"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_marginBottom="20dp"/>
+
+
+            <EditText
+                android:id="@+id/field_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:hint="@string/hint_email"
+                android:inputType="textEmailAddress"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/field_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:hint="@string/hint_password"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_buttons"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:hint="@string/hint_password"
-            android:inputType="textPassword"
-            android:maxLines="1" />
+            android:layout_below="@+id/layout_email_password"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/button_sign_in"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_in" />
+
+
+            <Button
+                android:id="@+id/button_sign_up"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_up" />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:srcCompat="@drawable/fiupanthers"
+            android:layout_gravity="center_vertical|center_horizontal"/>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layout_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/layout_email_password"
-        android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/button_sign_in"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="@string/sign_in" />
-
-
-        <Button
-            android:id="@+id/button_sign_up"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="@string/sign_up" />
-
-    </LinearLayout>
 
 
 </RelativeLayout>

@@ -32,9 +32,7 @@ public class PostActivity2 extends AppCompatActivity {
 
     //TODO: to be removed START
 
-    // [START declare_database_ref]
     protected StorageReference mStorage;// Image storage reference.
-    // [END declare_database_ref]
 
     // [START declare_database_ref]
     private DatabaseReference mDatabase;
@@ -59,6 +57,9 @@ public class PostActivity2 extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(post.coverPhotoUri == null || post.coverPhotoUri.isEmpty()){ // get the photo before continuing
+                    return;
+                }
                 nextActivity(view);
             }
         });
@@ -125,7 +126,7 @@ public class PostActivity2 extends AppCompatActivity {
 
             Picasso.with(this).load(uri).fit().centerInside().into(coverPhotoImgButton);
             coverPhotoImgButton.setBackground(null);
-            post.coverPhotoUri = uri;
+            post.coverPhotoUri = uri.toString();
 
         }
     }
