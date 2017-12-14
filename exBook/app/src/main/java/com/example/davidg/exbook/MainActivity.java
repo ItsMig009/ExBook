@@ -3,7 +3,6 @@ package com.example.davidg.exbook;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
@@ -382,7 +381,6 @@ public class MainActivity extends AppCompatActivity
 
 
     private void populatePostList(){
-
 
         // Adding Add Value Event Listener to databaseReference.
         databaseReference.addValueEventListener(new ValueEventListener() {

@@ -213,6 +213,8 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
                             // Write new post
                             //user.username is the user who made the post. Un-use for now
                             //First uplodad the photo to get the download url that is going to be used later to get post photos
+                            //TODO: replace by loading spinner
+                            showToast("Posting...",Toast.LENGTH_LONG);
                             submitPhoto();
                         }
                         // [END_EXCLUDE]
@@ -249,14 +251,12 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         childUpdates.put("/posts/" + key, postValues);
         childUpdates.put("/user-posts/" + post.userId + "/" + key, postValues);
 
-        showToast("Posting...", Toast.LENGTH_SHORT);
-
         mDatabase.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
 
                 if(task.isComplete()){
-                    showToast("Book has been successfully posted", Toast.LENGTH_SHORT);
+                    showToast("Post Successfully Completed.", Toast.LENGTH_SHORT);
                     // Finish this Activity, back to the stream
                     setEditingEnabled(true);
                     finishAffinity();
@@ -291,6 +291,7 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                showToast("An error occurred while uploading the image.",Toast.LENGTH_LONG);
                 Log.w(TAG,"File could not be uploaded",new Exception());
 
             }
@@ -298,13 +299,14 @@ public class PostActivity3 extends AppCompatActivity  implements AdapterView.OnI
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if(task.isComplete()){
-                    showToast("Photo Upload Done.",Toast.LENGTH_SHORT);
+                    //showToast("Photo Upload Done.",Toast.LENGTH_SHORT);
+                    //After phot have finished uploading. Complete writing the post
+                    writeNewPost(price, description);
                 }else{
-                    showToast("Waiting to upload photo",Toast.LENGTH_SHORT);
+                    showToast("Waiting to upload photo. Post info won't be uploaded if you receive this message.",Toast.LENGTH_SHORT);
                 }
 
-                //After phot have finished uploading. Complete writing the post
-                writeNewPost(price, description);
+
             }
         });
     }

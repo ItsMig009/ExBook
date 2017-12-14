@@ -11,13 +11,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.bumptech.glide.Glide;
 import com.example.davidg.exbook.helpers.BottomNavigationViewHelper;
 import com.example.davidg.exbook.models.Post;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 public class PostActivity2 extends AppCompatActivity {
 
@@ -123,8 +123,8 @@ public class PostActivity2 extends AppCompatActivity {
         if (requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
 
             Uri uri = data.getData();
-
-            Picasso.with(this).load(uri).fit().centerInside().into(coverPhotoImgButton);
+            Glide.with(this).load(uri).fitCenter().into(coverPhotoImgButton);
+            //Picasso.with(this).load(uri).fit().centerInside().into(coverPhotoImgButton);
             coverPhotoImgButton.setBackground(null);
             post.coverPhotoUri = uri.toString();
 

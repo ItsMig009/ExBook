@@ -1,15 +1,16 @@
 package com.example.davidg.exbook;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.davidg.exbook.models.Post;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 public class PostDescription extends AppCompatActivity {
 
@@ -75,13 +76,15 @@ public class PostDescription extends AppCompatActivity {
         }
 
 
-        Picasso.with(this).load(post.coverPhotoUrl).into(bookPhoto);
+        Glide.with(this).load(post.coverPhotoUrl).fitCenter().into(bookPhoto);
 
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         super.onBackPressed();
+        finishAffinity();
+        startActivity(new Intent(this,MainActivity.class));
         return true;
 
     }

@@ -87,6 +87,8 @@ public class PostActivity1 extends AppCompatActivity  {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         super.onBackPressed();
+        finishAffinity();
+        startActivity(new Intent(this,MainActivity.class));
         return true;
 
     }

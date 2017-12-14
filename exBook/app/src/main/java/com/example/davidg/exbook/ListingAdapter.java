@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.davidg.exbook.models.Post;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -121,7 +121,8 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Post post = MainImageUploadInfoList.get(position);
-        Picasso.with(context).load(post.coverPhotoUrl).into(holder.imageView);
+        //Picasso.with(context).load(post.coverPhotoUrl).into(holder.imageView);
+        Glide.with(context).load(post.coverPhotoUrl).fitCenter().placeholder(R.drawable.ic_menu_camera).into(holder.imageView);
         holder.imageNameTextView.setText(post.title.trim());
         //Loading image from Glide library.
         //Glide.with(context).load(UploadInfo.getImageURL()).into(holder.imageView);
@@ -153,6 +154,6 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         for (Post post: posts) {
             MainImageUploadInfoList.add(post);
         }
-        notifyDataSetChanged();
+        this.notifyDataSetChanged();
     }
 }
