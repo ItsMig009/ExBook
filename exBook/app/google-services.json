@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1018866364978",
+    "firebase_url": "https://exbooks-67ebc.firebaseio.com",
+    "project_id": "exbooks-67ebc",
+    "storage_bucket": "exbooks-67ebc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018866364978:android:fcfef757a832647b",
+        "android_client_info": {
+          "package_name": "com.example.davidg.exbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1018866364978-ioblf6s2ndea8l6laekgq0v5aj6m6pvg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.davidg.exbook",
+            "certificate_hash": "7c6ab6d5fa854d3d8f63d1c5ad44b8e9c8ab18d9"
+          }
+        },
+        {
+          "client_id": "1018866364978-f86hpetmbbn44ncm34qmgq1lomj3kab0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjk2Guy4y2o3zn27fg6oEXO2Kj2DS1xSQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1018866364978-f86hpetmbbn44ncm34qmgq1lomj3kab0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

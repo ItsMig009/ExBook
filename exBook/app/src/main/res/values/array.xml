@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources  xmlns:android="http://schemas.android.com/apk/res/android">
+    <string-array name="currencies">
+        <item>USD</item>
+        <item>EUR</item>
+    </string-array>
+
+    <string-array name="conditions">
+        <item>Other (see description)</item>
+        <item>Damaged (pages missing)</item>
+        <item>Some Tear (highlighted, cover scratches)</item>
+        <item>Used (normal wear)</item>
+        <item>Like New</item>
+        <item>New (never used)</item>
+    </string-array>
+</resources>
